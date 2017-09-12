@@ -125,7 +125,7 @@ $(function() {
 		function getHSL() {
 			var	position	= $picker.find('.pin').position(),
 				width		= $spectrum.width(),
-				height		= $spectrum.height();
+				height		= $spectrum.outerHeight();	// padding doesn't count to "height" anymore so we need the "outerHeight"
 			return {
 				hue			: Math.round(position.left / width * 360),
 				saturation	: Math.round(position.top / height * 100),
@@ -223,6 +223,8 @@ $(function() {
 //---------- Move the pin
 
 		var movePin = function(event) {
+			// Prevent scrolling the page on mobile while dragging pin with vmousemove
+			event.preventDefault();
 			var	bounds	= $spectrum[0].getBoundingClientRect(),
 				x		= event.clientX - bounds.left,
 				y		= event.clientY - bounds.top;
@@ -243,19 +245,20 @@ $(function() {
 
 //---------- Pin interaction
 
-		$spectrum.on('mousedown', function(event) {
+		$spectrum.on('mousedown vmousedown', function(event) {
 			event.preventDefault();
 			movePin(event);
 			$spectrum.addClass('active');
-			$(document).on('mousemove', movePin);
+			$(document).on('mousemove vmousemove', movePin);
 		});
 
-		$(document).on('mouseup', function() {
+		$(document).on('mouseup vmouseup', function() {
 			$spectrum.removeClass('active');
-			$(document).off('mousemove', movePin);
+			$(document).off('mousemove vmousemove', movePin);
 		});
 
-		$spectrum.on('touchmove touchstart', movePin);
+		// touchmove somehow doesn't work anymore so we add the "vmouse" events to the code above (jQuery mobile is required now)
+		//$spectrum.on('touchmove touchstart', movePin);
 
 //---------------------- Output color preview
 
